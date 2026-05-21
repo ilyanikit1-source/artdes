@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORMA — Архитектурное бюро</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f0e0d;
+    --bg2: #161513;
+    --ivory: #f2ede4;
+    --ivory-dim: #c8c3b8;
+    --copper: #b8895a;
+    --copper-light: #d4a87a;
+    --line: rgba(178,168,148,0.18);
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ivory);
+    font-family: var(--sans);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--copper);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(184,137,90,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.08s linear, width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    transform: translate(-50%, -50%);
+  }
+  body.hovering .cursor-ring { width: 54px; height: 54px; opacity: 0.7; }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 4rem;
+    mix-blend-mode: normal;
+    transition: background 0.4s ease, padding 0.4s ease;
+  }
+  nav.scrolled {
+    background: rgba(15,14,13,0.92);
+    backdrop-filter: blur(12px);
+    padding: 1.2rem 4rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--ivory);
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex;
+    gap: 3rem;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--ivory-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--copper-light); }
+  .nav-contact-btn {
+    border: 1px solid var(--copper) !important;
+    color: var(--copper) !important;
+    padding: 0.5rem 1.4rem;
+    transition: background 0.3s, color 0.3s !important;
+  }
+  .nav-contact-btn:hover { background: var(--copper) !important; color: var(--bg) !important; }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 4rem 5rem;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1800&q=80');
+    background-size: cover;
+    background-position: center 40%;
+    filter: brightness(0.35);
+    transform: scale(1.05);
+    transition: transform 8s ease;
+  }
+  .hero-bg.loaded { transform: scale(1); }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15,14,13,0.95) 0%, rgba(15,14,13,0.3) 50%, transparent 100%);
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 900px; }
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--copper);
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 8vw, 7.5rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 2rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--copper-light);
+  }
+  .hero-desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ivory-dim);
+    max-width: 480px;
+    margin-bottom: 3rem;
+  }
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .btn-primary {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: var(--copper);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .btn-primary:hover { background: var(--copper-light); transform: translateY(-1px); }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ivory-dim);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .btn-ghost:hover { color: var(--ivory); }
+  .btn-ghost::after {
+    content: '→';
+    font-size: 1rem;
+    font-family: serif;
+    transition: transform 0.3s;
+  }
+  .btn-ghost:hover::after { transform: translateX(4px); }
+
+  .hero-stats {
+    position: absolute;
+    right: 4rem;
+    bottom: 5rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    text-align: right;
+  }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--ivory);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+  }
+
+  /* Ticker */
+  .ticker {
+    background: var(--copper);
+    padding: 0.9rem 0;
+    overflow: hidden;
+  }
+  .ticker-inner {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 25s linear infinite;
+  }
+  .ticker-item {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--bg);
+    padding: 0 3rem;
+  }
+  .ticker-item::after { content: '✦'; padding-left: 3rem; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Sections */
+  section { padding: 8rem 4rem; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--copper);
+    display: block;
+  }
+
+  /* Philosophy */
+  .philosophy {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8rem;
+    align-items: center;
+    border-top: 1px solid var(--line);
+  }
+  .philosophy-text h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+  }
+  .philosophy-text h2 em { font-style: italic; color: var(--copper-light); }
+  .philosophy-text p {
+    font-size: 1rem;
+    line-height: 1.85;
+    color: var(--ivory-dim);
+    margin-bottom: 1.5rem;
+  }
+  .philosophy-image {
+    position: relative;
+  }
+  .philosophy-image img {
+    width: 100%;
+    height: 560px;
+    object-fit: cover;
+    filter: brightness(0.8);
+  }
+  .philosophy-image-caption {
+    position: absolute;
+    bottom: -1.5rem;
+    left: 2rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--ivory-dim);
+    text-transform: uppercase;
+  }
+
+  /* Projects */
+  .projects { border-top: 1px solid var(--line); }
+  .projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+  .projects-header h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 4vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+  }
+  .projects-header h2 em { font-style: italic; color: var(--copper-light); }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: auto;
+    gap: 1.5rem;
+  }
+  .project-card {
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+  }
+  .project-card:nth-child(1) { grid-column: 1 / 8; grid-row: 1; }
+  .project-card:nth-child(2) { grid-column: 8 / 13; grid-row: 1; }
+  .project-card:nth-child(3) { grid-column: 1 / 5; grid-row: 2; }
+  .project-card:nth-child(4) { grid-column: 5 / 10; grid-row: 2; }
+  .project-card:nth-child(5) { grid-column: 10 / 13; grid-row: 2; }
+  .project-card img {
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s ease;
+    filter: brightness(0.75);
+  }
+  .project-card:nth-child(1) img { height: 520px; }
+  .project-card:nth-child(2) img { height: 520px; }
+  .project-card:nth-child(3) img { height: 340px; }
+  .project-card:nth-child(4) img { height: 340px; }
+  .project-card:nth-child(5) img { height: 340px; }
+  .project-card:hover img { transform: scale(1.04); filter: brightness(0.5); }
+  .project-info {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(15,14,13,0.9) 0%, transparent 100%);
+    transform: translateY(0.5rem);
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .project-card:hover .project-info { opacity: 1; transform: translateY(0); }
+  .project-always {
+    position: absolute;
+    bottom: 1.5rem; left: 2rem;
+    transition: opacity 0.3s;
+  }
+  .project-card:hover .project-always { opacity: 0; }
+  .project-num {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--copper);
+    margin-bottom: 0.3rem;
+  }
+  .project-name {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 300;
+    color: var(--ivory);
+  }
+  .project-detail-name {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+    color: var(--ivory);
+  }
+  .project-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--copper-light);
+    text-transform: uppercase;
+  }
+
+  /* Services */
+  .services { border-top: 1px solid var(--line); background: var(--bg2); }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 4rem;
+    border: 1px solid var(--line);
+  }
+  .service-item {
+    padding: 3rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    transition: background 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .service-item:nth-child(3n) { border-right: none; }
+  .service-item:nth-child(4), .service-item:nth-child(5), .service-item:nth-child(6) { border-bottom: none; }
+  .service-item:hover { background: rgba(184,137,90,0.04); }
+  .service-num {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--copper);
+    margin-bottom: 2rem;
+  }
+  .service-name {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--ivory);
+  }
+  .service-desc {
+    font-size: 0.875rem;
+    line-height: 1.8;
+    color: var(--ivory-dim);
+  }
+  .service-arrow {
+    position: absolute;
+    bottom: 3rem; right: 3rem;
+    font-size: 1.5rem;
+    color: var(--copper);
+    opacity: 0;
+    transform: translate(-8px, 8px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .service-item:hover .service-arrow { opacity: 1; transform: translate(0, 0); }
+
+  /* Team */
+  .team { border-top: 1px solid var(--line); }
+  .team h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 4vw, 3.8rem);
+    font-weight: 300;
+    margin-bottom: 4rem;
+  }
+  .team h2 em { font-style: italic; color: var(--copper-light); }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+  .team-card { position: relative; overflow: hidden; }
+  .team-card img {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    filter: grayscale(40%) brightness(0.8);
+    transition: filter 0.4s, transform 0.6s;
+    display: block;
+  }
+  .team-card:hover img { filter: grayscale(0%) brightness(0.75); transform: scale(1.03); }
+  .team-info {
+    padding: 1.5rem 0 0;
+  }
+  .team-name {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin-bottom: 0.3rem;
+  }
+  .team-role {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--copper);
+    text-transform: uppercase;
+  }
+
+  /* Quote */
+  .quote-section {
+    padding: 7rem 4rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 6rem;
+  }
+  .quote-line {
+    width: 2px;
+    height: 120px;
+    background: var(--copper);
+    flex-shrink: 0;
+  }
+  blockquote {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3vw, 2.6rem);
+    font-weight: 300;
+    line-height: 1.4;
+    font-style: italic;
+    color: var(--ivory);
+  }
+  blockquote cite {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-style: normal;
+    letter-spacing: 0.15em;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-top: 1.5rem;
+  }
+
+  /* Contact */
+  .contact {
+    border-top: 1px solid var(--line);
+    background: var(--bg2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+  }
+  .contact-left h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+  }
+  .contact-left h2 em { font-style: italic; color: var(--copper-light); }
+  .contact-left p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ivory-dim);
+    margin-bottom: 3rem;
+  }
+  .contact-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .contact-item-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+  .contact-item-value {
+    font-size: 1rem;
+    color: var(--ivory);
+  }
+
+  .contact-form { display: flex; flex-direction: column; gap: 0; }
+  .form-group {
+    border-bottom: 1px solid var(--line);
+    padding: 1.5rem 0;
+    position: relative;
+  }
+  .form-group label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--ivory);
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 300;
+    resize: none;
+    appearance: none;
+  }
+  .form-group textarea { min-height: 100px; }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: rgba(200,195,184,0.35); }
+  .form-submit {
+    margin-top: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .form-submit button {
+    padding: 1rem 2.8rem;
+    background: transparent;
+    border: 1px solid var(--copper);
+    color: var(--copper);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: background 0.3s, color 0.3s;
+  }
+  .form-submit button:hover { background: var(--copper); color: var(--bg); }
+  .form-note {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--ivory-dim);
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 3rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+  }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--ivory-dim);
+    text-transform: uppercase;
+  }
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--ivory-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--copper); }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    nav { padding: 1.5rem 2rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 2rem; }
+    .hero { padding: 0 2rem 4rem; }
+    .hero-stats { right: 2rem; bottom: 4rem; }
+    .philosophy { grid-template-columns: 1fr; gap: 3rem; }
+    .projects-grid { grid-template-columns: 1fr 1fr; }
+    .project-card { grid-column: auto !important; grid-row: auto !important; }
+    .project-card img { height: 280px !important; }
+    .services-grid { grid-template-columns: 1fr; }
+    .service-item { border-right: none !important; }
+    .team-grid { grid-template-columns: 1fr 1fr; }
+    .contact { grid-template-columns: 1fr; gap: 3rem; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .quote-section { flex-direction: column; gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="#" class="nav-logo">FORMA</a>
+  <ul class="nav-links">
+    <li><a href="#projects">Проекты</a></li>
+    <li><a href="#services">Услуги</a></li>
+    <li><a href="#team">Команда</a></li>
+    <li><a href="#contact" class="nav-contact-btn">Связаться</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Архитектурное бюро · Москва · 2006</div>
+    <h1>
+      Архитектура,<br>
+      которая<br>
+      <em>живёт.</em>
+    </h1>
+    <p class="hero-desc">
+      Мы проектируем пространства, отражающие характер людей, которые в них живут.
+      Каждый объект — диалог между контекстом места и человеческой природой.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn-primary">Смотреть проекты</a>
+      <a href="#contact" class="btn-ghost">Обсудить проект</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">18</div>
+      <div class="stat-label">лет опыта</div>
+    </div>
+    <div>
+      <div class="stat-num">140+</div>
+      <div class="stat-label">реализованных проектов</div>
+    </div>
+    <div>
+      <div class="stat-num">12</div>
+      <div class="stat-label">международных премий</div>
+    </div>
+  </div>
+</section>
+
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-inner" id="ticker">
+    <span class="ticker-item">Жилая архитектура</span>
+    <span class="ticker-item">Коммерческие объекты</span>
+    <span class="ticker-item">Интерьерный дизайн</span>
+    <span class="ticker-item">Ландшафтное проектирование</span>
+    <span class="ticker-item">Реновация</span>
+    <span class="ticker-item">Градостроительство</span>
+    <span class="ticker-item">Жилая архитектура</span>
+    <span class="ticker-item">Коммерческие объекты</span>
+    <span class="ticker-item">Интерьерный дизайн</span>
+    <span class="ticker-item">Ландшафтное проектирование</span>
+    <span class="ticker-item">Реновация</span>
+    <span class="ticker-item">Градостроительство</span>
+  </div>
+</div>
+
+<!-- Philosophy -->
+<section>
+  <div class="philosophy reveal">
+    <div class="philosophy-text">
+      <div class="section-label">О бюро</div>
+      <h2>Мы верим, что<br><em>форма</em> следует<br>за смыслом</h2>
+      <p>
+        Бюро FORMA основано в 2006 году Алексеем Черновым и Мариной Соколовой.
+        За восемнадцать лет мы выработали язык, в котором конструктивная честность 
+        встречается с поэтикой детали.
+      </p>
+      <p>
+        Мы работаем в России и Европе: от частных резиденций до масштабных
+        общественных комплексов. Каждый проект начинается с вопроса о смысле — 
+        и ответ всегда уникален.
+      </p>
+      <a href="#team" class="btn-ghost" style="margin-top: 1.5rem; display: inline-flex;">Познакомиться с командой</a>
+    </div>
+    <div class="philosophy-image">
+      <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&q=80" alt="Интерьер студии">
+      <div class="philosophy-image-caption">Штаб-квартира FORMA, Москва, 2019</div>
+    </div>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <div class="projects-header reveal">
+    <div>
+      <div class="section-label">Портфолио</div>
+      <h2>Избранные<br><em>проекты</em></h2>
+    </div>
+    <a href="#contact" class="btn-ghost">Все проекты</a>
+  </div>
+  <div class="projects-grid">
+    <div class="project-card">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80" alt="Резиденция Сосны">
+      <div class="project-always">
+        <div class="project-num">01 · 2023</div>
+        <div class="project-name">Резиденция «Сосны»</div>
+      </div>
+      <div class="project-info">
+        <div class="project-detail-name">Резиденция «Сосны»</div>
+        <div class="project-meta">Подмосковье · Частный дом · 840 м²</div>
+      </div>
+    </div>
+    <div class="project-card">
+      <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=700&q=80" alt="Клубный дом Арбат">
+      <div class="project-always">
+        <div class="project-num">02 · 2022</div>
+        <div class="project-name">Клубный дом «Арбат»</div>
+      </div>
+      <div class="project-info">
+        <div class="project-detail-name">Клубный дом «Арбат»</div>
+        <div class="project-meta">Москва · Жилой комплекс · 12 200 м²</div>
+      </div>
+    </div>
+    <div class="project-card">
+      <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80" alt="Бизнес-центр Север">
+      <div class="project-always">
+        <div class="project-num">03 · 2022</div>
+        <div class="project-name">Бизнес-центр «Север»</div>
+      </div>
+      <div class="project-info">
+        <div class="project-detail-name">Бизнес-центр «Север»</div>
+        <div class="project-meta">СПб · Офисы · 28 000 м²</div>
+      </div>
+    </div>
+    <div class="project-card">
+      <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80" alt="Вилла Ривьера">
+      <div class="project-always">
+        <div class="project-num">04 · 2021</div>
+        <div class="project-name">Вилла «Ривьера»</div>
+      </div>
+      <div class="project-info">
+        <div class="project-detail-name">Вилла «Ривьера»</div>
+        <div class="project-meta">Ницца · Резиденция · 620 м²</div>
+      </div>
+    </div>
+    <div class="project-card">
+      <img src="https://images.unsplash.com/photo-1509644851169-2acc08aa25b5?w=500&q=80" alt="Культурный центр">
+      <div class="project-always">
+        <div class="project-num">05 · 2021</div>
+        <div class="project-name">Культурный центр</div>
+      </div>
+      <div class="project-info">
+        <div class="project-detail-name">Культурный центр</div>
+        <div class="project-meta">Казань · Общественное · 4 800 м²</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quote -->
+<div class="quote-section reveal">
+  <div class="quote-line"></div>
+  <blockquote>
+    «Хорошая архитектура — это не то, что поражает при первом взгляде,
+    а то, что остаётся с вами на всю жизнь.»
+    <cite>— Алексей Чернов, сооснователь бюро</cite>
+  </blockquote>
+</div>
+
+<!-- Services -->
+<section id="services">
+  <div class="reveal">
+    <div class="section-label">Услуги</div>
+    <h2 style="font-family: var(--serif); font-size: clamp(2.5rem,4vw,3.8rem); font-weight: 300; margin-bottom: 0;">
+      Что мы <em style="font-style: italic; color: var(--copper-light);">делаем</em>
+    </h2>
+  </div>
+  <div class="services-grid reveal">
+    <div class="service-item">
+      <div class="service-num">01</div>
+      <div class="service-name">Архитектурное проектирование</div>
+      <div class="service-desc">Концепция, эскизный и рабочий проект, авторский надзор. От частного дома до крупного жилого комплекса.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-item">
+      <div class="service-num">02</div>
+      <div class="service-name">Дизайн интерьеров</div>
+      <div class="service-desc">Мы создаём пространства, которые говорят с хозяином на одном языке. Каждый предмет — на своём месте.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-item">
+      <div class="service-num">03</div>
+      <div class="service-name">Ландшафтный дизайн</div>
+      <div class="service-desc">Территория вокруг дома — продолжение архитектуры. Мы проектируем сады, террасы и общественные парки.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-item">
+      <div class="service-num">04</div>
+      <div class="service-name">Реновация и реконструкция</div>
+      <div class="service-desc">Бережная работа с историческим контекстом. Сохраняем характер — обновляем содержание.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-item">
+      <div class="service-num">05</div>
+      <div class="service-name">Градостроительство</div>
+      <div class="service-desc">Мастер-планы, концепции кварталов и общественных территорий. Думаем о городе целиком.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-item">
+      <div class="service-num">06</div>
+      <div class="service-name">Консалтинг и экспертиза</div>
+      <div class="service-desc">Независимая экспертиза проектов, оценка потенциала участков, сопровождение инвестиционных решений.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+  </div>
+</section>
+
+<!-- Team -->
+<section id="team">
+  <div class="reveal">
+    <div class="section-label">Команда</div>
+    <h2>Люди, которые<br>создают <em>FORMA</em></h2>
+  </div>
+  <div class="team-grid reveal">
+    <div class="team-card">
+      <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&q=80" alt="Алексей Чернов">
+      <div class="team-info">
+        <div class="team-name">Алексей Чернов</div>
+        <div class="team-role">Сооснователь, главный архитектор</div>
+      </div>
+    </div>
+    <div class="team-card">
+      <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=80" alt="Марина Соколова">
+      <div class="team-info">
+        <div class="team-name">Марина Соколова</div>
+        <div class="team-role">Сооснователь, арт-директор</div>
+      </div>
+    </div>
+    <div class="team-card">
+      <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&q=80" alt="Павел Орлов">
+      <div class="team-info">
+        <div class="team-name">Павел Орлов</div>
+        <div class="team-role">Партнёр, руководитель проектов</div>
+      </div>
+    </div>
+    <div class="team-card">
+      <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=500&q=80" alt="Анна Белова">
+      <div class="team-info">
+        <div class="team-name">Анна Белова</div>
+        <div class="team-role">Ведущий дизайнер интерьеров</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="contact">
+  <div class="contact-left reveal">
+    <div class="section-label">Контакт</div>
+    <h2>Начнём<br>ваш <em>проект</em></h2>
+    <p>
+      Расскажите нам о своей идее. Мы свяжемся с вами в течение одного рабочего дня
+      и назначим первую консультацию — бесплатно.
+    </p>
+    <div class="contact-detail">
+      <div>
+        <div class="contact-item-label">Адрес</div>
+        <div class="contact-item-value">Москва, ул. Пречистенка, 17/9</div>
+      </div>
+      <div>
+        <div class="contact-item-label">Телефон</div>
+        <div class="contact-item-value">+7 (495) 123-45-67</div>
+      </div>
+      <div>
+        <div class="contact-item-label">Email</div>
+        <div class="contact-item-value">hello@forma-arch.ru</div>
+      </div>
+      <div>
+        <div class="contact-item-label">Часы работы</div>
+        <div class="contact-item-value">Пн–Пт, 09:00–19:00</div>
+      </div>
+    </div>
+  </div>
+  <div class="contact-form reveal">
+    <div class="form-group">
+      <label>Ваше имя</label>
+      <input type="text" placeholder="Иван Иванов">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" placeholder="ivan@example.com">
+    </div>
+    <div class="form-group">
+      <label>Тип проекта</label>
+      <select>
+        <option value="" disabled selected style="color: rgba(200,195,184,0.35)">Выберите тип</option>
+        <option>Частный дом / резиденция</option>
+        <option>Жилой комплекс</option>
+        <option>Коммерческий объект</option>
+        <option>Интерьер</option>
+        <option>Другое</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Расскажите о проекте</label>
+      <textarea placeholder="Опишите вашу идею, масштаб, сроки и бюджет..."></textarea>
+    </div>
+    <div class="form-submit">
+      <button type="button" onclick="handleSubmit()">Отправить заявку</button>
+      <span class="form-note">Ответим в течение 24 часов</span>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">FORMA</div>
+  <div class="footer-copy">© 2006–2024 Архитектурное бюро FORMA</div>
+  <ul class="footer-links">
+    <li><a href="#">Instagram</a></li>
+    <li><a href="#">Behance</a></li>
+    <li><a href="#">Политика конфиденциальности</a></li>
+  </ul>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+  document.querySelectorAll('a, button, .project-card, .service-item, .team-card').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+  });
+
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Hero bg
+  window.addEventListener('load', () => {
+    document.getElementById('heroBg').classList.add('loaded');
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Form submit
+  function handleSubmit() {
+    const btn = document.querySelector('.form-submit button');
+    btn.textContent = 'Отправлено ✓';
+    btn.style.background = 'var(--copper)';
+    btn.style.color = 'var(--bg)';
+    btn.disabled = true;
+  }
+
+  // Select styling
+  const sel = document.querySelector('select');
+  if (sel) {
+    sel.style.color = 'rgba(200,195,184,0.35)';
+    sel.addEventListener('change', () => { sel.style.color = 'var(--ivory)'; });
+  }
+</script>
+</body>
+</html>
